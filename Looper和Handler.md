@@ -1,4 +1,4 @@
-##Looper
+## Looper
 #### Looper相当于一个管理者
 
 	    static final ThreadLocal<Looper> sThreadLocal = new ThreadLocal<Looper>();
@@ -52,8 +52,8 @@
         return sThreadLocal.get();
     }
     
-##Handler
-####Handler相当于消息的搬运工，往消息队列`MessageQueue mQueue`发送消息的是它，处理消息的也是它`msg.target.dispatchMessage(msg);`
+## Handler
+#### Handler相当于消息的搬运工，往消息队列`MessageQueue mQueue`发送消息的是它，处理消息的也是它`msg.target.dispatchMessage(msg);`
 
     private boolean enqueueMessage(MessageQueue queue, Message msg, long uptimeMillis) {
         msg.target = this;
@@ -63,5 +63,5 @@
         return queue.enqueueMessage(msg, uptimeMillis);
     }
     
-####Handler怎么找到当前线程的消息队列的呢？
+#### Handler怎么找到当前线程的消息队列的呢？
 答：调用Looper类的静态方法`myLooper()`
