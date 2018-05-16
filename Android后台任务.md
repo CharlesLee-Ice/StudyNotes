@@ -1,4 +1,5 @@
-# BackGround Task
+# Android 后台任务
+
 
 ## AsyncTask
 
@@ -11,6 +12,11 @@
 答：因为onPreExecute、onProgressUpdate、onPostExecute、onCancelled会涉及到UI更新，只有AsyncTask在UI线程初始化和execute才能保证这些函数在UI线程环境执行。
 
 #### 为什么AsyncTask不适合执行耗时较长的任务？
+答：
+
+1、因为AsyncTask经常通过匿名内部类来使用，较长的后台时间，锁住了外部类对象，影响外部类对象的回收
+
+2、AsyncTask 内部使用 SerialExecutor 来执行任务，多个异步任务顺序执行，一个较长的任务就会阻塞其它。当然`setDefaultExecutor`可以替换SerialExecutor
 
 ### 原理
 
