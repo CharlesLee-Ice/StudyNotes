@@ -1,5 +1,5 @@
 ## Looper
-#### Looper相当于一个管理者
+#### Looper相当于一个管理员
 
 	    static final ThreadLocal<Looper> sThreadLocal = new ThreadLocal<Looper>();
 	    private static Looper sMainLooper;  // guarded by Looper.class
@@ -65,3 +65,13 @@
     
 #### Handler怎么找到当前线程的消息队列的呢？
 答：调用Looper类的静态方法`myLooper()`
+
+#### 不同线程中初始化的Handler不一样，为什么？
+答：`new Handler()` 内部调用`Looper.myLooper()`函数，获取的是自己所在线程的管理员，如果异步线程想要向主线程发消息，调用`new Handler(Looper.getMainLooper())`
+
+#### 避免Handler匿名类锁住外部类
+
+        Handler().postDelayed({
+            this@MainActivity
+        }, 3000)
+如上例中，延迟的匿名类锁住了外部类 MainActivity 3000毫秒
