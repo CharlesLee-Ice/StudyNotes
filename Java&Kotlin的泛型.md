@@ -69,7 +69,7 @@ Kotlin:
 		   ... 
 		}
 
-* 类型清除（Type Erasure），泛型通过编译时的类型检查，避免了运行时的类强转错误`ClassCastException `，编译通过后，程序运行的字节码已经没有泛型存在的必要了，所以编译器通过类型清除（Type Erasure）去除泛型并添加上类型强转。上例中，上限类型参数在编译成字节码后，所有的类型`T`都被替换成了`Number`,外界传入的类型变量`Integer a`强制转换成`Number`类型，如下面代码所示：
+* 类型清除（Type Erasure），泛型通过编译时的类型检查，避免了运行时的类强转错误`ClassCastException `，编译通过后，程序运行的字节码已经没有泛型存在的必要了，所以编译器通过类型清除（Type Erasure）去除泛型，用边界类型或`Object`代替，相应的地方添加上类型强转。如果泛型定义时，没有边界，则类型变成`Object`，所以`List<String> one`和`List<Integer> two`其实在字节码是同一种`List<Object>`。在定义有上下限的泛型编译后，如上例，所有的类型`T`都被替换成了上限`Number`,外界传入的类型变量`Integer a`强制转换成`Number`类型，如下面代码所示：
 	
 		class Box {  
 		   private Number value;  
@@ -78,7 +78,13 @@ Kotlin:
 		}
 		
 		Integer a = 10;
-		Box box = new Box((Number)a);
+		Box box = new Box((Number)a);
+		
+***Why don't Java Generics support primitive types?***
+	
+	List<int> bar = new ArrayList<int>();// 编译报错
+
+还是和类型擦除有关，编译后的代码，泛型都被替换成了`Object`或其他边界类，原始类型没办法强转成`Object`。
 
 **受限类型参数只有上限(upper bound)，没有下限(lower bound)**
 	
@@ -156,6 +162,7 @@ Java通过 `extends` 和 `implements` 实现 子类型转换（subtyping），�
 上例中, 可以传入类型 `List<Number>` 实现子类型转换(Subtyping), `List<Number>` 是 `List<? super Integer>` 的子类型，这里的子类型转换称之为 **逆变（Contravariance）**。
 
 下边界通配符定义的对象，由于知道类型的下限，可以向对象中写入数据，上例中可以向 `List<? super Integer> list` 对象添加新的`Integer`。但是不知道下边界通配符的具体类型及类型内方法，所以不能读数据，即不能调用 `List<? super Integer> list`对象的`get`方法。一句话总结：下边界通配符只能写数据。
+
 
 ### Kotlin: in, out ###
 
