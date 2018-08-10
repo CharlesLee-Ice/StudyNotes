@@ -217,3 +217,5 @@
 	答：一个对象`new`出来，`sp`没用过，用了`wp`，则默认使用者不会主动`delete`的，因为如果使用者自己主动`delete`掉，那他使用`wp`有什么意义（都自己`delete`了，还用智能指针干嘛）？所以这块程序默认返回`true`，可见`wp`还是要配合`sp`才符合用法。
 * `mStrong <= 0`,则此时必须要求`mFlags == OBJECT_LIFETIME_WEAK`才能返回`true`，毕竟此时调用在`wp`类内部，`mWeak`肯定大于0
 
+## 参考 ##
+[Android系统的智能指针](https://blog.csdn.net/luoshengyang/article/details/6786239)
