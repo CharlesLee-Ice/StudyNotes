@@ -90,9 +90,9 @@ JVM启动时会开启一系列`Daemon`线程（`Daemons.java`），其中包含`
             ReferenceQueue queue = list.queue;
             if (queue == null) {
                 Reference<?> next = list.pendingNext;
-                
-                list.pendingNext = list;
-                list = next;
+
+				list.pendingNext = list;
+  				list = next;
             } else {
                 synchronized (queue.lock) {
                     do {

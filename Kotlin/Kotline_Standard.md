@@ -2,7 +2,7 @@
 
 [原文链接](http://beust.com/weblog/2015/10/30/exploring-the-kotlin-standard-library/)
 
-`Standard.kt`文件定义了`Kotlin`一些基本方法，这些方法都是[`Scoping Functions`](https://kotlin.guide/scoping-functions)
+`Standard.kt`文件定义了`Kotlin`一些基本方法，这些方法都是[`Scoping Functions`](https://kotlin.guide/scoping-functions)。
 
 ### `let()` ###
 
@@ -38,7 +38,7 @@
 	            
 `apply()`一般用于`new`新对象时进行初始化。
 
-### also() ###
+### `also()` ###
 	public inline fun <T> T.also(block: (T) -> Unit): T {
 	    block(this)
 	    return this
@@ -53,7 +53,7 @@
 
 `run()` 调用的`block()`函数时`Receiver`的扩展函数，同`apply()`。但是返回是新的类型`R`，同`let()`。
 
-### with() ###
+### `with()` ###
 
 	public inline fun <T, R> with(receiver: T, block: T.() -> R): R {
 	    return receiver.block()
