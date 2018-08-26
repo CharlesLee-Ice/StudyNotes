@@ -134,6 +134,7 @@ SerialExecutor 为 AsyncTask 的默认执行器，由此可知，如果多个 As
 
 ##### 两个关键变量
 
+    //ThreadPoolExecutor.java
     private final class Worker
         extends AbstractQueuedSynchronizer
         implements Runnable
