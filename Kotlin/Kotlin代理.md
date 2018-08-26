@@ -1,8 +1,8 @@
-##为什么使用代理?##
+## 为什么使用代理? ##
 
 *Effective Java*书中第四章讲到*继承*的弊端，并且推荐**Favor composition over inheritance**,而`Kotlin`通过`by`关键字实现代理。
 
-###那继承有哪些弊端呢？###
+### 那继承有哪些弊端呢？ ###
 
 最主要的有两点：父类行为的不确定性，继承影响父类的行为
 
@@ -55,7 +55,7 @@
 
 同理，当继承父类时，重载父类的函数，那相当于改变了父类的行为，父类自己调用会出现不可预知的问题。
 
-###Android系统中用到代理的地方###
+### Android系统中用到代理的地方 ###
 
 * `ContextWrapper`代理`Context`对象
 
@@ -126,7 +126,7 @@
 	        return view;
 	    }
 	    
-##Kotlin中的代理##
+## Kotlin中的代理 ##
 
 `kotlin`通过`by`关键字很好的支持代理，例如：
 	
@@ -152,7 +152,7 @@
 * 不能继承，应为`Kotlin`类是`public final`
 * 只希望对外提供有限接口，避免外界`cast`
 
-###Kotlin自带的代理用法###
+### Kotlin自带的代理用法 ###
 
 * `Lazy`
 * `Delegates.observable()` `Delegates.vetoable()`
@@ -168,7 +168,7 @@
 		    "age"  to 25
 		))
 
-###Kotlin自定义属性代理###
+### Kotlin自定义属性代理 ###
 
 `val`变量的代理需要继承`ReadOnlyProperty`类，而`var`变量的代理则需要继承`ReadWriteProperty`
 	
