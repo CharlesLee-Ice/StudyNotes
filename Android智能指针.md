@@ -8,16 +8,16 @@
 
 * 想要实现对象自动`delete`，类必须继承`RefBase`，同时后面一律通过`sp`对象来访问类成员，如
 
-	class Animal: RefBase {
-	    Animal();
-	    ~Animal();
-	    void eat();
-	};
-	
-	void test() {
-	    sp<Animal> ptr = new Animal();
-	    ptr->eat();
-	}
+		class Animal: RefBase {
+		    Animal();
+		    ~Animal();
+		    void eat();
+		};
+		
+		void test() {
+		    sp<Animal> ptr = new Animal();
+		    ptr->eat();
+		}
 
 上例中，在test函数执行完毕后,`Animal`对象会自动`delete`，
 
@@ -216,6 +216,13 @@
 
 	答：一个对象`new`出来，`sp`没用过，用了`wp`，则默认使用者不会主动`delete`的，因为如果使用者自己主动`delete`掉，那他使用`wp`有什么意义（都自己`delete`了，还用智能指针干嘛）？所以这块程序默认返回`true`，可见`wp`还是要配合`sp`才符合用法。
 * `mStrong <= 0`,则此时必须要求`mFlags == OBJECT_LIFETIME_WEAK`才能返回`true`，毕竟此时调用在`wp`类内部，`mWeak`肯定大于0
+
+### 提问 ###
+
+当`sp`不再使用，`delete RefBase`后，`wp`是如何追踪到该对象失效的呢？
+
+答：
+但`RefBase`被`sp``decStrong`函数`delete`后，`RefBase`内部类对象`weakref_impl`还没有被`delete`掉，而`wp`通过`weakref_type* m_refs`保存该对象，只有当`weakref_impl`内部`mWeak`计数也变成0才执行`weakref_impl`的`delete`
 
 ## 参考 ##
 [Android系统的智能指针](https://blog.csdn.net/luoshengyang/article/details/6786239)

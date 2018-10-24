@@ -62,10 +62,30 @@
             }
         };
     }
+    
+    @MainThread
+    public final AsyncTask<Params, Progress, Result> execute(Params... params){
+        return executeOnExecutor(sDefaultExecutor, params);
+    }
 
-* mHandler 在 publishProgress 和 postResult 时向主线程发送消息
-* mWorker 后台工作 Runnable
-* mFuture 处理工作结束时要做的事：postResultIfNotInvoked，Future 其实也是个 Runnable ，它的 `run()` 函数内部执行 WorkerRunnable 的 `run()` 函数，AsyncTask 执行`execute()` 时调用的是 Future 的 `run()` 函数
+    @MainThread
+    public final AsyncTask<Params, Progress, Result> executeOnExecutor(Executor exec,
+            Params... params) {
+		...
+        mStatus = Status.RUNNING;
+
+        onPreExecute();
+
+        mWorker.mParams = params;
+        exec.execute(mFuture);
+
+        return this;
+    }
+    
+* `mHandler` 在 `publishProgress` 和 `postResult` 时向主线程发送消息
+* `mWorker` 后台工作 `Runnable`
+* `mFuture` 处理工作结束时要做的事：`postResultIfNotInvoked`，`Future` 其实也是个 `Runnable` ，它的 `run()` 函数内部执行 `WorkerRunnable mWorker` 的 `run()` 函数，`AsyncTask` 执行`execute()` 时调用的是 `Future` 的 `run()` 函数
+* `Future`为什么称之为Future，因为内部定义接口：`isDone``get`可选择阻塞等待任务完成
 
 #### 执行
 

@@ -1,6 +1,7 @@
 ## Supporting Multiple Screens ##
 
 ### px = dp * (dpi / 160) ###
+**px / dpi = dp / 160**
 
 * dp是 Density-Independent Pixels(dip)
 * dpi是 Dots Per Inch
