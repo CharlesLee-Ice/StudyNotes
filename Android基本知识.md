@@ -198,3 +198,23 @@
 此时切换后台，打开设置页开发者模式中的“不保留互动”，切回到应用，打印日志如下：
 
 	Test:  1 1 1 false false // Retain Fragment也被回收了
+	
+	
+## 权限 ##
+
+`READ_EXTERNAL_STORAGE `
+`WRITE_EXTERNAL_STORAGE`
+
+Starting in API level 19, this permission is not required to read/write files in your application-specific directories returned by Context.getExternalFilesDir(String) and Context.getExternalCacheDir()
+
+但是外部存储公用部分还是需要权限申请的，例如存储图片到系统共用图片库：
+	
+	fun getPublicAlbumStorageDir(albumName: String): File? {
+	    // Get the directory for the user's public pictures directory.
+	    val file = File(Environment.getExternalStoragePublicDirectory(
+	            Environment.DIRECTORY_PICTURES), albumName)
+	    if (!file?.mkdirs()) {
+	        Log.e(LOG_TAG, "Directory not created")
+	    }
+	    return file
+	}

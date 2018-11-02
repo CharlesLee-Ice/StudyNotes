@@ -200,7 +200,7 @@ JVM启动时会开启一系列`Daemon`线程（`Daemons.java`），其中包含`
 
 `super(key, queue)`将`key`通过`WeakReference`来管理，同时传入`ReferenceQueue`，这样当内存不足时，`key`对象被回收，`ReferenceQueue`中添加`WeakReference`（在这里就是`Entry`）。而在操作`WeakHashMap``size()``resize()``getTable()`等方法内，会`poll`检查`ReferenceQueue<Object> queue`中存放的数据，找到`Entry`对象，从`HashMap`拉链结构中删除。
 
-为什么没有`SoftHashMap`？
+问：为什么没有`SoftHashMap`？
 
 答：`SoftReference`中对象是否被访问会影响其生命周期，而`HashMap`中当命中相同的bucket时会进行`key`值比较，并且数组扩大`rehash`过程也会访问`key`值，所以会导致一个很久没被使用的`key-value`在`hashMap`内部频繁访问，导致不会被`GC`
 

@@ -40,7 +40,7 @@ Entry结构
 
 ## LinkedHashMap ##
 
-* key-value结构，数据通过父类`hashMap`存放，由于`Entry`是`LinkedHashMapEntry`，额外包含`before``after`，不同`LinkedHashMapEntry`形成双向链表，可以记录数据插入顺序或访问顺序。
+* key-value结构，数据通过父类`hashMap`存放，由于`Entry`是`LinkedHashMapEntry`，额外包含`before``after`，不同`LinkedHashMapEntry`形成双向链表，可以记录数据插入顺序或访问顺序。主要用户`LruCache``DiskLruCache`
 
 [彻头彻尾理解 LinkedHashMap](https://blog.csdn.net/justloveyou_/article/details/71713781)
 
