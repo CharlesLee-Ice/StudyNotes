@@ -198,8 +198,12 @@
 此时切换后台，打开设置页开发者模式中的“不保留互动”，切回到应用，打印日志如下：
 
 	Test:  1 1 1 false false // Retain Fragment也被回收了
-	
-	
+
+
+**问：`Activity`处于`STARTED`状态，但不是`RESUMED`状态的场景。**
+
+答：只要可见的`Activity`都处于`STARTED`状态，但只有最前面的`Activity`处于`RESUMED`状态，尽管它是透明的。而Android 7.0引入的分屏模式在分屏状态下，只有最近用户交互过的Activity处于`RESUMED`状态，另外一个分屏`Activity`处于`STARTED`状态。
+
 ## 权限 ##
 
 `READ_EXTERNAL_STORAGE `
@@ -218,3 +222,25 @@ Starting in API level 19, this permission is not required to read/write files in
 	    }
 	    return file
 	}
+
+## 如何理解Android四大组件 ##
+
+通用的应用与操作系统的启动方式都是`main()`函数启动，显的单一，而实际上一个应用开始运行的原因有多种，例如：用户点击、系统或其他应用通知、有个后台任务要做，其他应用想要访问我的数据。Android系统把应用这些启动方式给分成了四大组件，而应用因为这些原因开始运行后，具体怎么运行，系统是不关心的。但一个应用支持多种启动方式后，他要把这些入口告诉操作系统，如何告诉呢？就是通过`AndroidManifest.xml`。具体分每一个组件来说：
+
+#### Activity ####
+应用和用户的交互入口，这也是为什么 Jake Wharton 推崇一个应用只有一个`Activity`这种理念，想想各种`scheme`跳转页的处理、其他应用跳转我的应用时，我的应用现在在哪个Activity? 特别是部分Activity必须定义成`exported=true`。
+
+#### BroadcastReceiver ####
+提供除用户直接交互外的一种传递事件机制
+
+#### Service ####
+后台服务，告诉系统当前有事情在做，不要杀我。这里`createService`是自己不能死，有事要做，`bindService`是别人不能死，我要用他的服务。
+
+#### ContentProvider ####
+告诉系统，当别人向我请求数据时，通过`ContentProvider`启动我，不管应用内如果提供数据，是数据库还是`FileProvider`，对外都是`URI`标示。
+
+*问：为什么四大组件都有Context对象*
+
+答：有`Context`对象才能调用系统服务及相关api，如果四大组件没有它，那组件自己启动后玩啥。
+
+[Android四大组件理解](https://www.jianshu.com/p/07b87084337f)

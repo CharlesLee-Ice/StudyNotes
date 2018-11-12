@@ -1,6 +1,8 @@
 # Android 后台任务
 
 
+[Google Developers: Background Tasks](https://developer.android.com/training/best-background)
+
 ## AsyncTask
 
 #### Threading rules
@@ -305,10 +307,106 @@ Worker 继承 Runnable， 一个 Worker 保存一个线程对象， 线程执行
     
 **PS：`ThreadPoolExecutor` 应用可以直接使用，如果有多个后台任务需要同时执行，则只要初始化 `ThreadPoolExecutor`,并多次调用 `public void execute(Runnable command)` 即可**
 
-## JobService
+## 推荐 ##
 
-## SyncAdapter
+### JobIntentService ###
+* `IntentService`的升级版，`support`包加入，支持高低版本API一致，低版本用`IntentService`实现，Android 8.0以后（targetSdkVersion 26）以后，因为后台任务限制，换用`JobService`实现。
 
-## EventBus
+#### 优点 ####
+* 一套api适配不同Android版本
+* 执行任务期间`wakelock`保护
+* 任务执行中，被系统杀死时，可以选择重新安排任务
 
-## RxJava
+#### 缺点 ####
+* 任务会立刻执行，不能向`JobScheduler`一样选择条件，内部使用`JobScheduler`时，调用`jobInfo.setOverrideDeadline(0).build()`
+
+[jobintentservice](https://medium.com/til-kotlin/jobintentservice-for-background-processing-on-android-o-39535460e060)
+
+[Schedule jobs intelligently](https://developer.android.com/topic/performance/scheduling)
+
+### JobScheduler
+[scheduling-jobs-like-a-pro-with-jobscheduler](https://medium.com/google-developers/scheduling-jobs-like-a-pro-with-jobscheduler-286ef8510129)
+
+##### 触发时机 #####
+* 网络可达性
+* 定时
+* 充电或灭屏Idle
+* `ContentProvider`变化
+
+##### 注意点 #####
+* 5.0以上才支持
+* 在`Doze`模式下，短则半小时，长则几个小时才能触发一次窗口活动，窗口活动最长10分钟，10分钟内如果没做完，系统也直接进入Idle状态。未做完的事需等待下一个窗口。
+* 应用如果进入`Standby`模式，则一天内可能只有一次窗口期执行任务。
+* `JobService`是`Service`的之类，`Service`在Android 8.0不让用了，用`JobService`代替
+
+### AlarmManager ###
+
+* 5.0以下搭配`Service`使用
+
+### Firebase JobDispatcher ###
+
+* 需要 Google Play Service
+* 支持5.0以下的类`JobScheduler`API接口
+
+
+### DownloadManager ###
+
+* 但需要通过HTTP下载东西时，最好通过`DownloadManager`下载，因为它是一个前台服务
+
+### WorkManager（Jetpack推荐） ###
+
+* 整合`JobScheudler``JobDispatcher`(可选)`AlarmManager`的后台任务
+## 不推荐 ##
+### IntentService ###
+
+* Android O(api 26)版本以下使用
+* `IntentService`相当好用，相当于升级版的`AsyncTask`，`IntentService`内部通过`Thread``Looper``Handler`实现了类似`HandlerThread`机制：
+
+        HandlerThread thread = new HandlerThread("IntentService[" + mName + "]");
+        thread.start();
+
+        mServiceLooper = thread.getLooper();
+        mServiceHandler = new ServiceHandler(mServiceLooper);
+
+* `IntentService`替换版本是`JobIntentService`，Android O之后通过`JobService`实现
+* **注意`onHandleIntent`函数内处理事件是没有`wakelock`保护的，如果工作必须保证要完成，可以添加`wakelock`，如果是从`broadcast`触发的任务，则换用`WakefulBroadcastReceiver`**
+
+#### 延伸 ####
+[aquire-partial-wakelock-in-a-intentservice](https://stackoverflow.com/questions/41953458/aquire-partial-wakelock-in-a-intentservice) 这篇问答里面说到，除了闹钟和消息提醒等必须要用到`wakelock`保证外，其他后台任务都可以不用`wakelock`。而且普通的`AlarmManager`触发的`onReceive`函数都是`wakelock`保证的，`onReceive`执行完毕就不保证了
+
+*问：为什么不通过`HandlerThread`来执行多个任务？*
+
+答：因为`HandlerThread`不能后台执行，试想当应用从前台切到后台，而`HandlerThread`还在处理业务，如果此时内存紧张，根据应用优先级[process-lifecycle](https://developer.android.com/guide/components/activities/process-lifecycle)，此时应用优先级比后台`Service`低，极有可能被杀，而且杀掉之后还没方法恢复，其他场景如：后台定时Alarm，后台推送消息处理。
+
+所以`IntentService`优势如下：
+
+* 通过`Service`提高应用优先级，避免后台被杀；
+* 被杀之后恢复，`onStartCommond`返回`START_REDELIVER_INTENT`可以让系统恢复`Service`，并重新开始上一次未执行完毕的任务。
+* 但所有`Intent`被处理完之后，`Service`自动关闭
+
+*问：`IntentService`异步线程是单线程执行，如何变成多线程执行？*
+
+* 可以自定义类继承`Service`, 实现多个`Looper``Thread`，具体实现例子见下文
+
+[官网：ExtendingIntentService](https://developer.android.com/guide/components/services#ExtendingIntentService)
+
+
+
+### SyncAdapter
+
+* 用于同步账号和设备相关信息给服务器
+* 代码实现较复杂，需要 `authenticator` 和 `content provider`等相关实现
+* 官方建议用`JobScheduler`代替，除非想用`SyncAdapter`独有特性 
+
+### Service ##
+
+**`targetSdkVersion 26`及以上，不允许后台运行`Service`，应用后台时不允许调用`startService`，前台`Service`属于前台**
+
+* 应用从前台切到后台，还有几分钟的窗口期，窗口期过后，`Service`被系统强制关闭
+* 在`Application`里面没有必要调用`startService`，因为当应用在后台被系统重启时，`startService`调用会抛异常
+
+## 第三方方案 ##
+
+### EventBus
+
+### RxJava
